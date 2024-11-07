@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<!-- saved from url=(0666)http://127.0.0.1:5500/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%201/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%202/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%205/%D7%A9%D7%A2%D7%99%D7%95%D7%A8%206/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%208/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%209/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%2010/%D7%A9%D7%99%D7%A2%D7%95%D7%A811/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%2012/%D7%A9%D7%99%D7%A2%D7%95%D7%A815/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%2016/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%2017/gpt/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%2019/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%2020/21/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%2022/%D7%A9%D7%99%D7%A2%D7%95%D7%A8%2024/%D7%A4%D7%95%D7%A8%D7%95%D7%99%D7%A7%D7%98%20%D7%92%D7%9E%D7%A8/indx.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./משחק הייגול_files/style.css">
+    <title>משחק הייגול</title>
+</head>
+<body>
+    <div id="pp">
+        <!-- הצגת הניקוד הנוכחי של השחקן -->
+        <h2 id="score">ניקוד: 0</h2>
+        <!-- הצגת הזמן הנותר למשחק -->
+        <h2 id="timing">זמן: 60</h2>
+        <!-- הצגת השלב הנוכחי -->
+        <h2 id="level">שלב: 2</h2>
+        <!-- הצגת הניקוד הדרוש כדי לעבור לשלב הבא -->
+        <h2 id="score2">ניקוד בשביל לעבור לשלב הבא: 10</h2>
+    </div>
+    <!-- מיכל המשחק שבו נמצא העיגול -->
+    <div id="game-container" style="width: 100%; height: 100vh; position: relative; overflow: hidden;">
+        <!-- עיגול המשחק שאותו השחקן צריך ללחוץ -->
+        <div id="circle" style="width: 50px; height: 50px; background-color: red; border-radius: 50%; position: absolute; top: 261.236px; left: 108.475px; transform: translate(-50%, -50%); cursor: pointer;"></div>
+    </div>
+    <script>
+        // משתנים למעקב אחרי רכיבי המשחק והערכים
+        let circle = document.getElementById('circle'); // הייגול
+        let gameContainer = document.getElementById('game-container'); // מיכל המשחק
+        let scoreDisplay = document.getElementById('score'); // תצוגת הניקוד
+        let timingElement = document.getElementById('timing'); // תצוגת הזמן
+        let levelDisplay = document.getElementById('level'); // תצוגת השלב
+        let score2 = document.getElementById('score2'); // תצוגת הניקוד הדרוש למעבר שלב
+        let scoreTargets = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]; // רשימה של יעדי ניקוד לכל שלב
+        let victoire = new Audio("victoire.mp3"); // מוזיקת ניצחון
+        let perte = new Audio("perte.mp3"); // צליל של כלב
+
+        function victoirea() { victoire.play(); }
+        function pertea() { perte.play(); }
+
+        // משתנים לניקוד, זמן ושלב
+        let scoret = 0; // ניקוד הנוכחי
+        let timingt = 60; // הזמן הנוכחי (נניח 60 שניות לכל שלב)
+        let currentLevel = 0; // השלב הנוכחי
+        let timerInterval; // טיימר שמתעדכן כל שנייה
+        let circleSpeed = 1000; // מהירות ברירת מחדל של הייגול במילישניות
+
+        // פונקציה להתחלת המשחק
+        function startGame(level) {
+            clearInterval(timerInterval); // עצירה של כל טיימר פעיל
+            currentLevel = level - 1; // התאמת השלב לאיינדקס של המערך
+            scoret = 0; // אפס את הניקוד
+            timingt = 60; // התחלה מחדש של השעון
+            updateDisplay(); // עדכון התצוגה של מידע
+            // התחלת הטיימר
+            timerInterval = setInterval(updateTimer, 1000);
+            moveCircle(); // הזזת הייגול בפעם הראשונה
+        }
+
+        // פונקציה להזזת הייגול למיקום אקראי בתוך המיכל
+        // פונקציה להזזת הייגול למיקום אקראי
+function moveCircle() {
+    const size = 50; // גובה ורוחב העיגול
+    const randomX = Math.random() * (gameContainer.clientWidth - size);
+    const randomY = Math.random() * (gameContainer.clientHeight - size);
+
+    // עדכון מיקום הייגול
+    circle.style.left = `${randomX}px`;
+    circle.style.top = `${randomY}px`;
+
+    // הגדלת הניקוד
+    scoret++;
+    scoreDisplay.textContent = `ניקוד: ${scoret}`;
+
+    // בדיקה אם השיג ניקוד דרוש לשלב
+    if (scoret >= scoreTargets[currentLevel]) {
+        clearInterval(timerInterval); // עצירת הטיימר
+        alert(currentLevel + 1 < scoreTargets.length ? "כל הכבוד! עברת לשלב הבא!" : "הגעת לסוף המשחק!");
+        currentLevel + 1 < scoreTargets.length ? startGame(currentLevel + 2) : (circle.style.display = 'none');
+        victoirea();
+    }
+}
+
+
+        // פונקציה לעדכון התצוגה
+        function updateDisplay() {
+            scoreDisplay.textContent = `ניקוד: ${scoret}`; // עדכון תצוגת הניקוד
+            timingElement.textContent = `זמן: ${timingt}`; // עדכון תצוגת הזמן
+            levelDisplay.textContent = `שלב: ${currentLevel + 1}`; // עדכון תצוגת השלב
+            score2.textContent = `ניקוד בשביל לעבור לשלב הבא: ${scoreTargets[currentLevel]}`; // עדכון תצוגת הניקוד הדרוש לשלב הבא
+        }
+
+        // מאזינים לאירוע לחיצה על העיגול ומפעילים את הפונקציה להזזתו
+        circle.addEventListener('click', function() {
+            moveCircle();
+            setTimeout(moveCircle, circleSpeed); // הזזת הייגול שוב במהירות
+        });
+
+        // הפעלת המשחק הראשון
+        startGame(1);
+    </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+
+
+</body></html>
